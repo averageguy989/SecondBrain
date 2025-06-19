@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import prisma from '../config/prisma';
 import { generateAccessToken, generateRefreshToken } from '../utils/authUtils';
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -37,7 +36,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       data: {
         email,
         password: hashedPassword,
-        name
+        name,
       },
       select: {
         id: true,
@@ -108,8 +107,8 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Generate JWT token
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
+    const accessToken = generateAccessToken({id: user.id, email: user.email});
+    const refreshToken = generateRefreshToken({id: user.id, email: user.email});
 
     res
     .cookie('accessToken', accessToken, {
@@ -150,20 +149,21 @@ export const signout = async (req: Request, res: Response): Promise<void> => {
 
 export const refreshToken = async (req: Request, res: Response): Promise<void> => {
   try {
-    const token = req.body.token;
-    if(!token){
-      res.status(401).json({ error: 'No token provided' });
+    const refreshToken = req.cookies.refreshToken;
+
+    if(!refreshToken){
+      res.status(401).json({ error: 'No refresh token provided' });
       return;
     }
     
-    const decoded = jwt.verify(token, process.env.REFRESH_SECRET || 'default-secret') as { userId: string; email: string };
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET || 'default-secret') as { id: string; email: string };
 
     if(!decoded){
-      res.status(401).json({ error: 'Invalid token' });
+      res.status(401).json({ error: 'Invalid refresh token' });
       return;
     }
 
-    const newAccessToken = generateAccessToken({id: decoded.userId, email: decoded.email, name: null, password: null, role: 'user'});
+    const newAccessToken = generateAccessToken({id: decoded.id, email: decoded.email});
 
     res.cookie('accessToken', newAccessToken, {
       httpOnly: true,
@@ -174,7 +174,7 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
   }
   catch (error) {
     if(error instanceof jwt.JsonWebTokenError){
-      res.status(401).json({ error: 'Invalid token' });
+      res.status(401).json({ error: 'Invalid refresh token' });
     }
     else{
       res.status(500).json({ error: 'Internal server error' });

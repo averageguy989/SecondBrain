@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { signup } from '../api/auth';
 import Error from '../components/error';
+import '../styles/auth.css';
 
 export const SignUp = (): JSX.Element => {
     const [name, setName] = useState('');
@@ -27,36 +28,68 @@ export const SignUp = (): JSX.Element => {
     
     return (
         <div className="auth-container">
-            <h2>Register</h2>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Name"
-                />
-                <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email"
-                />
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Password"
-                />
-                <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm Password"
-                />
-                <button type="submit">Register</button>
+            <h1 className="auth-title">Sign Up</h1>
+            <p className="auth-subtitle">Create your account</p>
+            
+            <form className="auth-form" onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label className="form-label">Full Name</label>
+                    <input
+                        className="form-input"
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Enter your full name"
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Email</label>
+                    <input
+                        className="form-input"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter your email"
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Password</label>
+                    <input
+                        className="form-input"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter your password"
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Confirm Password</label>
+                    <input
+                        className="form-input"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Confirm your password"
+                        required
+                    />
+                </div>
+
+                <button className="auth-button" type="submit">
+                    Sign Up
+                </button>
             </form>
-            <p>Already have an account? <Link to="/login">Login</Link></p>
+
+            <p className="auth-link">
+                Already have an account? <Link to="/signin">Sign in</Link>
+            </p>
+            
             {error && <Error message={error} onClose={() => setError('')} />}
         </div>
-    )
-}
+    );
+};

@@ -1,43 +1,72 @@
 import React, { useState } from "react";
-import { signin } from "../api/auth";
 import { useNavigate, Link } from "react-router-dom";
 import Error from "../components/error";
+import { signin } from "../api/auth";
+import '../styles/auth.css';
 
 export const SignIn = (): JSX.Element => {
     const [email, setEmail] = useState('');
-    const [password,setPassword] = useState('');
-    const [error,setError] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     async function handleSubmit(e: React.FormEvent): Promise<void> {
         e.preventDefault();
+        setLoading(true);
+        setError('');
+        
         try {
-            await signin(email,password);
+            await signin(email, password);
             navigate('/dashboard');
         } catch (error: any) {
-            setError(error.response?.data?.error || 'Failed to signin');
+            setError(error.message || 'Failed to signin');
+        } finally {
+            setLoading(false);
         }
     }
     
     return (
         <div className="auth-container">
-            <h2>Sign In</h2>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email"
-                />
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Password"
-                />
-                <button type="submit">Sign In</button>
+            <h1 className="auth-title">Sign In</h1>
+            <p className="auth-subtitle">Welcome back to your second brain</p>
+            
+            <form className="auth-form" onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label className="form-label">Email</label>
+                    <input
+                        className="form-input"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter your email"
+                        disabled={loading}
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Password</label>
+                    <input
+                        className="form-input"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter your password"
+                        disabled={loading}
+                        required
+                    />
+                </div>
+
+                <button className="auth-button" type="submit" disabled={loading}>
+                    {loading ? 'Signing In...' : 'Sign In'}
+                </button>
             </form>
-            <p>Don't have an account? <Link to="/signup">Sign Up</Link></p>
+
+            <p className="auth-link">
+                Don't have an account? <Link to="/signup">Sign up</Link>
+            </p>
+            
             {error && <Error message={error} onClose={() => setError('')} />}
         </div>
     );

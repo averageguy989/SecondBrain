@@ -80,6 +80,7 @@ export const updateUserProfile = async (req: Request, res: Response): Promise<vo
         id: true,
         name: true,
         email: true,
+        createdAt: true,
         updatedAt: true
       }
     });
