@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN,
+  origin: 'https://second-brain-54wn.vercel.app',
   credentials: true
 }));
 app.use(express.json());
