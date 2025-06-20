@@ -1,4 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import '../styles/content-card.css';
+import EditContentCard from './EditContentCard';
+import { updateContent } from '../api/content';
+import Error from './error';
+import Success from './Success';
 
 interface Tag {
     id: string;
@@ -10,24 +15,27 @@ export interface ContentCardProps {
     title: string;
     link: string;
     type: string;
-    tags: Tag[];
+    tags?: Tag[] | string[];
     shared: boolean;
     upvotesCount: number;
     savedCount: number;
     createdAt: string;
     updatedAt: string;
 }
+
 interface ContentCardPropsFull {
     content: ContentCardProps;
     myContent: boolean;
-    deleteContent: (id: string) => void;
+    onDeleteContent: (id: string) => void;
+    onUpdateContent?: (updatedContent: ContentCardProps) => void;
 }
 
-const ContentCard: React.FC<ContentCardPropsFull> = ({content,myContent,deleteContent}) => {
+const ContentCard: React.FC<ContentCardPropsFull> = ({content, myContent, onDeleteContent, onUpdateContent}) => {
     const [upvotes, setUpvotes] = useState(content.upvotesCount);
     const [saved, setSaved] = useState(content.savedCount);
-    const [edit, setedit] = useState(false);
-    
+    const [edit, setEdit] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const handleUpvote = () => {
         setUpvotes(upvotes + 1);
     }
@@ -37,26 +45,125 @@ const ContentCard: React.FC<ContentCardPropsFull> = ({content,myContent,deleteCo
     }
 
     const handleDelete = () => {
-        deleteContent(content.id);
+        onDeleteContent(content.id);
+    }
+
+    const handleEdit = () => {
+        setEdit(true);
+    }
+
+    const handleCancelEdit = () => {
+        setEdit(false);
+    }
+
+    const handleSaveEdit = async (updatedContent: any) => {
+        try {
+            const result = await updateContent(updatedContent);
+            if (onUpdateContent) {
+                onUpdateContent(result);
+            }
+            setSuccess('Content updated successfully!');
+            setEdit(false);
+        } catch (error) {
+            setError('Error updating content: ' + error);
+            console.error('Error updating content:', error);
+        }
     }
 
     return (
-        <div>
-            <h3>{content.title}</h3>
-            <p>{content.link}</p>
-            <p>{content.type}</p>
-            {content.tags.map((tag) => (
-                <p key={tag.id}>#{tag.name}</p>
-            ))}
-            <p>{content.shared ? 'Public' : 'Private'}</p>
-            <p>{upvotes}</p>
-            <p>{saved}</p>
-            <p>{content.createdAt}</p>
-            <p>{content.updatedAt}</p>
-            {!myContent && <button onClick={handleUpvote}>Upvote</button>}
-            {!myContent && <button onClick={handleSave}>Save</button>}
-            {myContent && <button onClick={() => handleDelete()}>Delete</button>}
-            {myContent && <button>Edit</button>}
+        <div className="content-card-container">
+            {edit && (
+                <div className="edit-overlay">
+                    <EditContentCard
+                        content={content}
+                        onSave={handleSaveEdit}
+                        onCancel={handleCancelEdit}
+                    />
+                </div>
+            )}
+            
+            <div className="content-card">
+                <div className="content-header">
+                    <h3 className="content-title">{content.title}</h3>
+                    <span className="content-type">{content.type}</span>
+                </div>
+                
+                <a href={content.link} className="content-link" target="_blank" rel="noopener noreferrer">
+                    {content.link}
+                </a>
+                
+                <div className="content-tags">
+                    {content.tags && content.tags.map((tag, index) => (
+                        <span key={typeof tag === 'object' ? tag.id : index} className="content-tag">
+                            #{typeof tag === 'object' ? tag.name : tag}
+                        </span>
+                    ))}
+                </div>
+
+                <div className="content-meta">
+                    <div className="content-stats">
+                        <span className="content-stat">
+                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                            </svg>
+                            {upvotes}
+                        </span>
+                        <span className="content-stat">
+                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                            </svg>
+                            {saved}
+                        </span>
+                    </div>
+
+                    <span className="content-visibility">
+                        {content.shared ? (
+                            <>
+                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Public
+                            </>
+                        ) : (
+                            <>
+                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                Private
+                            </>
+                        )}
+                    </span>
+                </div>
+
+                <div className="content-buttons">
+                    {!myContent && (
+                        <>
+                            <button className="content-button primary" onClick={handleUpvote}>
+                                Upvote
+                            </button>
+                            <button className="content-button secondary" onClick={handleSave}>
+                                Save
+                            </button>
+                        </>
+                    )}
+                    {myContent && (
+                        <>
+                            <button className="content-button danger" onClick={handleDelete}>
+                                Delete
+                            </button>
+                            <button className="content-button secondary" onClick={handleEdit}>
+                                Edit
+                            </button>
+                        </>
+                    )}
+                </div>
+
+                <div className="content-date">
+                    Created: {new Date(content.createdAt).toLocaleDateString()}
+                </div>
+            </div>
+            {error && <Error message={error} onClose={() => setError('')} />}
+            {success && <Success message={success} onClose={() => setSuccess('')} />}
         </div>
     );
 };

@@ -1,30 +1,30 @@
 import React, { useEffect } from 'react';
-import '../styles/error.css';
+import '../styles/success.css';
 
-interface ErrorProps {
+interface SuccessProps {
     message: string;
     onClose?: () => void;
 }
 
-const Error: React.FC<ErrorProps> = ({ message, onClose }: ErrorProps): JSX.Element => {
-    // Auto-close after 5 seconds
+const Success: React.FC<SuccessProps> = ({ message, onClose }: SuccessProps): JSX.Element => {
+    // Auto-close after 3 seconds
     useEffect(() => {
         if (onClose) {
             const timer = setTimeout(() => {
                 onClose();
-            }, 5000);
+            }, 3000);
 
             return () => clearTimeout(timer);
         }
     }, [onClose]);
 
     return (
-        <div className="error-container">
-            <div className="error-content">
-                <div className="error-header">
-                    <div className="error-title">
+        <div className="success-container">
+            <div className="success-content">
+                <div className="success-header">
+                    <div className="success-title">
                         <svg
-                            className="error-icon"
+                            className="success-icon"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -33,13 +33,13 @@ const Error: React.FC<ErrorProps> = ({ message, onClose }: ErrorProps): JSX.Elem
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={2}
-                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                             />
                         </svg>
-                        Error
+                        Success
                     </div>
                     {onClose && (
-                        <button className="error-close" onClick={onClose}>
+                        <button className="success-close" onClick={onClose}>
                             <svg
                                 width="16"
                                 height="16"
@@ -57,10 +57,10 @@ const Error: React.FC<ErrorProps> = ({ message, onClose }: ErrorProps): JSX.Elem
                         </button>
                     )}
                 </div>
-                <p className="error-message">{message}</p>
+                <p className="success-message">{message}</p>
             </div>
         </div>
     );
 };
 
-export default Error;
+export default Success; 

@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import Error from "../components/error";
 import { signin } from "../api/auth";
 import '../styles/auth.css';
+import Success from "../components/Success";
+
 
 export const SignIn = (): JSX.Element => {
     const [email, setEmail] = useState('');
@@ -10,6 +12,7 @@ export const SignIn = (): JSX.Element => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const [success, setSuccess] = useState('');
 
     async function handleSubmit(e: React.FormEvent): Promise<void> {
         e.preventDefault();
@@ -18,9 +21,12 @@ export const SignIn = (): JSX.Element => {
         
         try {
             await signin(email, password);
-            navigate('/dashboard');
+            setSuccess('Welcome back! Successfully signed in.');
+            setTimeout(() => {
+                navigate('/dashboard');
+            }, 1000);
         } catch (error: any) {
-            setError(error.message || 'Failed to signin');
+            setError(error.response?.data?.error || 'Failed to signin');
         } finally {
             setLoading(false);
         }
@@ -68,6 +74,7 @@ export const SignIn = (): JSX.Element => {
             </p>
             
             {error && <Error message={error} onClose={() => setError('')} />}
+            {success && <Success message={success} onClose={() => setSuccess('')} />}
         </div>
     );
 };

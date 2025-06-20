@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { signup } from '../api/auth';
 import Error from '../components/error';
+import Success from '../components/Success';
 import '../styles/auth.css';
 
 export const SignUp = (): JSX.Element => {
@@ -10,6 +11,7 @@ export const SignUp = (): JSX.Element => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const navigate = useNavigate();
 
     async function handleSubmit(e: React.FormEvent): Promise<void> {
@@ -20,7 +22,10 @@ export const SignUp = (): JSX.Element => {
         }
         try {
             await signup(name,email,password);
-            navigate('/dashboard');
+            setSuccess('Account created successfully! Welcome aboard!');
+            setTimeout(() => {
+                navigate('/dashboard');
+            }, 1000);
         } catch (error: any) {
             setError(error.response?.data?.error || 'Failed to register');
         }
@@ -90,6 +95,7 @@ export const SignUp = (): JSX.Element => {
             </p>
             
             {error && <Error message={error} onClose={() => setError('')} />}
+            {success && <Success message={success} onClose={() => setSuccess('')} />}
         </div>
     );
 };

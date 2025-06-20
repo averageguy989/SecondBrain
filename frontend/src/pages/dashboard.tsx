@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { signout } from '../api/auth';
 import ContentCard from '../components/CreateContentCard';
 import { createContent, getContent } from '../api/content';
+import Success from '../components/Success';
 import '../styles/dashboard.css';
 
 interface Content {
@@ -16,11 +17,15 @@ interface Content {
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
+  const [success, setSuccess] = useState('');
 
   const handleSignOut = async () => {
     try {
       await signout();
-      navigate('/signin');
+      setSuccess('Successfully signed out.');
+      setTimeout(() => {
+        navigate('/signin');
+      }, 1000);
     } catch (error) {
       navigate('/signin');
     }
@@ -38,6 +43,7 @@ const Dashboard: React.FC = () => {
     try {
       await createContent(content);
       setShowForm(false);
+      setSuccess('Card created successfully!');
     } catch (error) {
       console.error('Error creating content:', error);
     }
@@ -81,6 +87,8 @@ const Dashboard: React.FC = () => {
           )}
         </div>
       </main>
+      
+      {success && <Success message={success} onClose={() => setSuccess('')} />}
     </div>
   );
 };

@@ -1,24 +1,35 @@
 import React, { useState } from 'react';
-import '../styles/create-content-card.css';
+import '../styles/edit-content-card.css';
 
-interface ContentCreationProps {
-  onSubmit: (content: {
+
+interface EditContentCardProps {
+  content: {
+    id: string;
     title: string;
     link: string;
     type: string;
-    tags: string[];
+    tags?: { id: string; name: string }[] | string[];
     shared: boolean;
-  }) => void;
+  };
+  onSave: (updatedContent: any) => void;
   onCancel: () => void;
 }
 
-const CreateContentCard: React.FC<ContentCreationProps> = ({ onSubmit, onCancel }) => {
-  const [title, setTitle] = useState('');
-  const [link, setLink] = useState('');
-  const [type, setType] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
-  const [shared, setShared] = useState(false);
+const EditContentCard: React.FC<EditContentCardProps> = ({ content, onSave, onCancel }) => {
+  const [title, setTitle] = useState(content.title);
+  const [link, setLink] = useState(content.link);
+  const [type, setType] = useState(content.type);
+  const [tags, setTags] = useState<string[]>(
+    content.tags 
+      ? (Array.isArray(content.tags) 
+          ? content.tags.map(tag => typeof tag === 'object' ? tag.name : tag)
+          : [])
+      : []
+  );
+  const [shared, setShared] = useState(content.shared);
   const [tagInput, setTagInput] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   const handleAddTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -31,15 +42,26 @@ const CreateContentCard: React.FC<ContentCreationProps> = ({ onSubmit, onCancel 
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
-      title,
-      link,
-      type,
-      tags,
-      shared
-    });
+    setSaving(true);
+    
+    try {
+      const updatedContent = {
+        id: content.id,
+        title,
+        link,
+        type,
+        tags: tags,
+        shared
+      };
+      
+      await onSave(updatedContent);
+    } catch (error) {
+      console.error('Error updating content:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -50,9 +72,9 @@ const CreateContentCard: React.FC<ContentCreationProps> = ({ onSubmit, onCancel 
   };
 
   return (
-    <div className="create-card">
-      <h3 className="create-card-title">Create Content</h3>
-      <form className="create-form" onSubmit={handleSubmit}>
+    <div className="edit-card">
+      <h3 className="edit-card-title">Edit Content</h3>
+      <form className="edit-form" onSubmit={handleSubmit}>
         <div className="form-group">
           <label className="form-label">Title</label>
           <input
@@ -139,8 +161,8 @@ const CreateContentCard: React.FC<ContentCreationProps> = ({ onSubmit, onCancel 
           <button type="button" className="cancel-button" onClick={onCancel}>
             Cancel
           </button>
-          <button type="submit" className="submit-button">
-            Create Content
+          <button type="submit" className="save-button" disabled={saving}>
+            {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </form>
@@ -148,4 +170,4 @@ const CreateContentCard: React.FC<ContentCreationProps> = ({ onSubmit, onCancel 
   );
 };
 
-export default CreateContentCard;
+export default EditContentCard; 

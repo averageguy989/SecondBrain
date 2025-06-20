@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUser, updateUser } from '../api/user';
-
+import Success from '../components/Success';
+import '../styles/profile.css';
 
 interface UserProfile {
   id?: string;
@@ -17,6 +18,7 @@ const Profile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -59,7 +61,7 @@ const Profile: React.FC = () => {
       await updateUser({name: editedName.trim()});
       setProfile(prev => ({ ...prev, name: editedName.trim() }));
       setIsEditing(false);
-      console.log('Profile updated successfully');
+      setSuccess('Profile updated successfully!');
     } catch (error) {
       console.error('Error updating profile:', error);
       alert('Failed to update profile. Please try again.');
@@ -70,66 +72,97 @@ const Profile: React.FC = () => {
 
   if (loading) {
     return (
-      <div>
-        <h1>Profile</h1>
-        <p>Loading profile...</p>
+      <div className="profile-container">
+        <header className="profile-header">
+          <h1 className="profile-title">Profile</h1>
+          <button className="profile-button secondary-button" onClick={handleBackToDashboard}>
+            Back to Dashboard
+          </button>
+        </header>
+        <main className="profile-main">
+          <div className="profile-section">
+            <p>Loading profile...</p>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div>
-      <header>
-        <h1>Profile</h1>
-        <div>
-          <button onClick={handleBackToDashboard}>Back to Dashboard</button>
-        </div>
+    <div className="profile-container">
+      <header className="profile-header">
+        <h1 className="profile-title">Profile</h1>
+        <button className="profile-button secondary-button" onClick={handleBackToDashboard}>
+          Back to Dashboard
+        </button>
       </header>
 
-      <main>
-        <h2>User Profile</h2>
-        
-        <div>
-          <h3>Personal Information</h3>
-          
-          {isEditing ? (
-            <div>
-              <p>
-                <strong>Name:</strong> 
-                <input 
-                  type="text" 
-                  value={editedName} 
-                  onChange={(e) => setEditedName(e.target.value)}
-                  placeholder="Enter your name"
-                />
-              </p>
-              <div>
-                <button onClick={handleSave} disabled={saving}>
-                  {saving ? 'Saving...' : 'Save'}
-                </button>
-                <button onClick={handleCancel} disabled={saving}>
-                  Cancel
+      <main className="profile-main">
+        <section className="profile-section">
+          <h2 className="profile-section-title">Personal Information</h2>
+          <div className="profile-info">
+            {isEditing ? (
+              <>
+                <div className="profile-field">
+                  <span className="profile-label">Name</span>
+                  <input
+                    className="profile-input"
+                    type="text"
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                    placeholder="Enter your name"
+                  />
+                </div>
+                <div className="profile-buttons">
+                  <button
+                    className="profile-button primary-button"
+                    onClick={handleSave}
+                    disabled={saving}
+                  >
+                    {saving ? 'Saving...' : 'Save'}
+                  </button>
+                  <button
+                    className="profile-button secondary-button"
+                    onClick={handleCancel}
+                    disabled={saving}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="profile-field">
+                <span className="profile-label">Name</span>
+                <span className="profile-value">{profile.name || 'Not provided'}</span>
+                <button className="profile-button secondary-button" onClick={handleEdit}>
+                  Edit
                 </button>
               </div>
+            )}
+            
+            <div className="profile-field">
+              <span className="profile-label">Email</span>
+              <span className="profile-value">{profile.email || 'Not provided'}</span>
             </div>
-          ) : (
-            <div>
-              <p><strong>Name:</strong> {profile.name || 'Not provided'}</p>
-              <button onClick={handleEdit}>Edit</button>
-            </div>
-          )}
-          
-          <p><strong>Email:</strong> {profile.email || 'Not provided'}</p>
-          {profile.createdAt && (
-            <p><strong>Member Since:</strong> {new Date(profile.createdAt).toLocaleDateString()}</p>
-          )}
-        </div>
+            
+            {profile.createdAt && (
+              <div className="profile-field">
+                <span className="profile-label">Member Since</span>
+                <span className="profile-value">
+                  {new Date(profile.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+          </div>
+        </section>
 
-        <div>
-          <h3>Account Settings</h3>
+        <section className="profile-section">
+          <h2 className="profile-section-title">Account Settings</h2>
           <p>Account settings and preferences will be displayed here.</p>
-        </div>
+        </section>
       </main>
+      
+      {success && <Success message={success} onClose={() => setSuccess('')} />}
     </div>
   );
 };
