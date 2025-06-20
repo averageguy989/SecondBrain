@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Success from '../components/Success';
 import '../styles/mycontent.css';
 
-export const MyContent = () => {
+const MyContent = () => {
     const navigate = useNavigate();
     const [content, setContent] = useState<ContentCardProps[]>([]);
     const [loading, setLoading] = useState(true);
@@ -115,3 +115,5 @@ export const MyContent = () => {
         </div>
     );
 };
+
+export default MyContent;

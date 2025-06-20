@@ -6,7 +6,7 @@ import '../styles/auth.css';
 import Success from "../components/Success";
 
 
-export const SignIn = (): JSX.Element => {
+const SignIn = (): JSX.Element => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -78,3 +78,5 @@ export const SignIn = (): JSX.Element => {
         </div>
     );
 };
+
+export default SignIn;

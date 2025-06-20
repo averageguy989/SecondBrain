@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { SignUp } from './pages/signup';
-import { SignIn } from './pages/signin';
+import SignUp from './pages/signup';
+import SignIn from './pages/signin';
 import Dashboard from './pages/dashboard';
 import Profile from './pages/profile';
 import ProtectedRoute from './components/ProtectedRoute';
-import { MyContent } from './pages/mycontent';
+import MyContent from './pages/mycontent';
 
 function App() {
   return (
