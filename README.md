@@ -2,7 +2,9 @@
 
 Welcome to **Second Brain**, a full-stack web application designed to help you save, organize, and manage your digital content. Whether it's articles, videos, podcasts, or tutorials, this platform provides a centralized place to curate your personal knowledge base.
 
-![Dashboard Preview](https://i.imgur.com/your-image-url.png) <!-- It's a good idea to add a screenshot of your app here! -->
+![Dashboard Preview]
+Check out te website
+https://second-brain-54wn.vercel.app/ <!-- It's a good idea to add a screenshot of your app here! -->
 
 ---
 
