@@ -24,7 +24,7 @@ const SignIn = (): JSX.Element => {
             setSuccess('Welcome back! Successfully signed in.');
             setTimeout(() => {
                 navigate('/dashboard');
-            }, 1000);
+            }, 60000);
         } catch (error: any) {
             setError(error.response?.data?.error || 'Failed to signin');
         } finally {
