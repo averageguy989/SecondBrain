@@ -15,6 +15,7 @@ export const signup = async (name: string, email: string, password: string): Pro
 
 export const signin = async (email: string, password: string): Promise<any> => {
     const response = await api.post('/auth/signin', { email, password });
+    console.log(response.data);
     return response.data;
 };
 
