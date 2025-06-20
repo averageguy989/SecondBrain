@@ -76,7 +76,9 @@ Make sure you have the following installed on your system:
     - Create a `.env` file in the `backend` directory and add your environment variables.
     ```env
     DATABASE_URL="file:./dev.db"
-    JWT_SECRET="your_super_secret_key"
+    ACCESS_SECRET="development"
+    REFRESH_SECRET="webdevelopment"
+    NODE_ENV = "development"
     PORT=5000
     ```
     - Initialize the Prisma database:
@@ -91,7 +93,7 @@ Make sure you have the following installed on your system:
     ```
     - Create a `.env` file in the `frontend` directory and add the backend API URL.
     ```env
-    VITE_API_URL=http://localhost:5000
+    REACT_APP_API_URL=http://localhost:3000/api/auth
     ```
     *(Note: If you are not using Vite, you may need to name the variable `REACT_APP_API_URL`)*
 
