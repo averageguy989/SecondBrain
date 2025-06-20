@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
-import prisma from '../config/prisma';
+import prismaClient from '../config/prisma';
 
-const prismaClient = prisma as any;
 
 // create content
 export const createContent = async (req: Request, res: Response) => {
@@ -20,7 +19,6 @@ export const createContent = async (req: Request, res: Response) => {
         ? tags.split(',').map((tag: string) => tag.trim()).filter(Boolean)
         : [];
 
-    console.log(tagsArray);
     const tagConnectData = [];
 
     for (const tagName of tagsArray) {
@@ -82,37 +80,47 @@ export const getContent = async (req: Request, res: Response) => {
 
 // update content
 export const updateContent = async (req: Request, res: Response) => {
-  const userId = req.user?.userId;
-  const { id } = req.params;
-  const { type, link, title, tags, shared } = req.body;
+  try {
+    const userId = req.user?.userId;
+    const { id } = req.params;
+    const { type, link, title, tags, shared } = req.body;
 
-  const tagsArray: string[] = Array.isArray(tags)
-    ? tags
-    : typeof tags === 'string'
-      ? tags.split(',').map((tag: string) => tag.trim()).filter(Boolean)
-      : [];
-  
-  const tagConnectData = [];
-
-  for (const tagName of tagsArray) {
-    const existingTag = await prismaClient.tag.findUnique({
-      where: { name: tagName },
+    const editContent = await prismaClient.content.findUnique({
+      where: { id, userId },
     });
 
-    if (existingTag) {
-      tagConnectData.push({ id: existingTag.id });
-    } else {
-      const newTag = await prismaClient.tag.create({
-        data: { name: tagName },
-      });
-      tagConnectData.push({ id: newTag.id });
+    if (!editContent) {
+      return res.status(404).json({ error: 'Content not found' });
     }
-  }
 
-  try {
+    const tagsArray: string[] = Array.isArray(tags)
+      ? tags
+      : typeof tags === 'string'
+        ? tags.split(',').map((tag: string) => tag.trim()).filter(Boolean)
+        : [];
+    const tagConnectData = [];
+
+    for (const tagName of tagsArray) {
+      const existingTag = await prismaClient.tag.findUnique({
+        where: { name: tagName },
+      });
+
+      if (existingTag) {
+        tagConnectData.push({ id: existingTag.id });
+      } else {
+        const newTag = await prismaClient.tag.create({
+          data: { name: tagName },
+        });
+        tagConnectData.push({ id: newTag.id });
+      }
+    }
+
     const content = await prismaClient.content.update({
       where: { id, userId },
       data: { type, link, title, tags: { connect: tagConnectData }, shared },
+      include: {
+        tags: true,
+      },
     });
 
     res.status(200).json(content);
@@ -148,4 +156,73 @@ export const deleteContent = async (req: Request, res: Response) => {
 };
 
 
+export const getPaginatedContent = async (req: Request, res: Response) => {
+  const userId = req.user?.userId; // logged-in user's ID
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+  const skip = (page - 1) * limit;
+  const tags = req.query.tags as string[] | string | undefined;
+  const onlyShared = 'true';
+
+  const tagArray = tags ? (Array.isArray(tags) ? tags : [tags]) : [];
+
+  try {
+    // Build dynamic where condition
+    const whereCondition: any = {};
+
+    if (onlyShared) {
+      whereCondition.shared = true;
+      if (userId) {
+        whereCondition.userId = { not: userId }; // exclude own content
+      }
+    }
+
+    if (tagArray.length > 0) {
+      whereCondition.tags = {
+        some: {
+          name: { in: tagArray },
+        },
+      };
+    }
+
+    const contents = await prismaClient.content.findMany({
+      where: whereCondition,
+      include: {
+        tags: true,
+        user: {
+          select: {
+            id: true,
+            name: true, // optional: include author's name
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      skip: skip,
+      take: limit,
+    });
+
+    const totalCount = await prismaClient.content.count({
+      where: whereCondition,
+    });
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    res.status(200).json({
+      content: contents,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalCount,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+      message: contents.length === 0 ? 'No content available.' : undefined,
+    });
+  } catch (error) {
+    console.error('Error fetching content:', error);
+    res.status(500).json({ error: 'Failed to fetch content' });
+  }
+};
 
