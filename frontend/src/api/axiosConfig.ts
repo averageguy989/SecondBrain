@@ -62,9 +62,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         // If refresh fails, redirect to signin
         processQueue(new Error('Authentication failed'));
-        setTimeout(() => {
-          window.location.href = '/signin';
-        }, 60000);
+        window.location.href = '/signin';
         return Promise.reject(new Error('Authentication failed'));
       } finally {
         isRefreshing = false;

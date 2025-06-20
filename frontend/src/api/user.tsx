@@ -1,11 +1,7 @@
 import api from './axiosConfig';
 
 export const getUser = async () => {
-    console.log('Getting user');
     const response = await api.get('/users/profile');
-    setTimeout(() => {
-        console.log(response);
-    }, 60000);
     return response.data;
 };
 
