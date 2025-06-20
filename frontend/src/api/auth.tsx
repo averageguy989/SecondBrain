@@ -6,6 +6,11 @@ const API_URL = process.env.REACT_APP_API_URL;
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true, // Important for cookies
+  headers: {
+    'Content-Type': 'application/json',
+    'Same-Site': 'none',
+    'Secure': true,
+  },
 });
 
 export const signup = async (name: string, email: string, password: string): Promise<any> => {

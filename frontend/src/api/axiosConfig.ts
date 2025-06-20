@@ -15,6 +15,11 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
   withCredentials: true, // send cookies like refreshToken
+  headers: {
+    'Content-Type': 'application/json',
+    'Same-Site': 'none',
+    'Secure': true,
+  },
 });
 
 let isRefreshing = false;
