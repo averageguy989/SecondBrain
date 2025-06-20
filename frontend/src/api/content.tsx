@@ -9,6 +9,13 @@ export interface Content {
   shared: boolean;
 }
 
+export interface PaginatedContentResponse {
+  content: ContentCardProps[];
+  totalPages: number;
+  currentPage: number;
+  totalItems: number;
+}
+
 export const createContent = async (content: Content): Promise<Content> => {
   const response = await api.post('/content/create', content);
   return response.data;
@@ -16,6 +23,24 @@ export const createContent = async (content: Content): Promise<Content> => {
 
 export const getContent = async (): Promise<ContentCardProps[]> => {
   const response = await api.get('/content');
+  return response.data;
+};
+
+export const getPaginatedContent = async (
+  page: number = 1, 
+  limit: number = 10, 
+  searchTags?: string[]
+): Promise<PaginatedContentResponse> => {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString()
+  });
+  
+  if (searchTags && searchTags.length > 0) {
+    params.append('tags', searchTags.join(','));
+  }
+  
+  const response = await api.get(`/content/paginated?${params}`);
   return response.data;
 };
 

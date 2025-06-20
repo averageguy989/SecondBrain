@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import '../styles/content-card.css';
 import EditContentCard from './EditContentCard';
 import { updateContent } from '../api/content';
@@ -17,8 +17,6 @@ export interface ContentCardProps {
     type: string;
     tags?: Tag[] | string[];
     shared: boolean;
-    upvotesCount: number;
-    savedCount: number;
     createdAt: string;
     updatedAt: string;
 }
@@ -30,19 +28,15 @@ interface ContentCardPropsFull {
     onUpdateContent?: (updatedContent: ContentCardProps) => void;
 }
 
-const ContentCard: React.FC<ContentCardPropsFull> = ({content, myContent, onDeleteContent, onUpdateContent}) => {
-    const [upvotes, setUpvotes] = useState(content.upvotesCount);
-    const [saved, setSaved] = useState(content.savedCount);
+const ContentCard: React.FC<ContentCardPropsFull> = ({
+    content, 
+    myContent, 
+    onDeleteContent, 
+    onUpdateContent,
+}) => {
     const [edit, setEdit] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const handleUpvote = () => {
-        setUpvotes(upvotes + 1);
-    }
-
-    const handleSave = () => {
-        setSaved(saved + 1);
-    }
 
     const handleDelete = () => {
         onDeleteContent(content.id);
@@ -101,21 +95,6 @@ const ContentCard: React.FC<ContentCardPropsFull> = ({content, myContent, onDele
                 </div>
 
                 <div className="content-meta">
-                    <div className="content-stats">
-                        <span className="content-stat">
-                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                            </svg>
-                            {upvotes}
-                        </span>
-                        <span className="content-stat">
-                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                            </svg>
-                            {saved}
-                        </span>
-                    </div>
-
                     <span className="content-visibility">
                         {content.shared ? (
                             <>
@@ -133,34 +112,21 @@ const ContentCard: React.FC<ContentCardPropsFull> = ({content, myContent, onDele
                             </>
                         )}
                     </span>
+                    <div className="content-date">
+                        Created: {new Date(content.createdAt).toLocaleDateString()}
+                    </div>
                 </div>
 
-                <div className="content-buttons">
-                    {!myContent && (
-                        <>
-                            <button className="content-button primary" onClick={handleUpvote}>
-                                Upvote
-                            </button>
-                            <button className="content-button secondary" onClick={handleSave}>
-                                Save
-                            </button>
-                        </>
-                    )}
-                    {myContent && (
-                        <>
-                            <button className="content-button danger" onClick={handleDelete}>
-                                Delete
-                            </button>
-                            <button className="content-button secondary" onClick={handleEdit}>
-                                Edit
-                            </button>
-                        </>
-                    )}
-                </div>
-
-                <div className="content-date">
-                    Created: {new Date(content.createdAt).toLocaleDateString()}
-                </div>
+                {myContent && (
+                    <div className="content-buttons">
+                        <button className="content-button danger" onClick={handleDelete}>
+                            Delete
+                        </button>
+                        <button className="content-button secondary" onClick={handleEdit}>
+                            Edit
+                        </button>
+                    </div>
+                )}
             </div>
             {error && <Error message={error} onClose={() => setError('')} />}
             {success && <Success message={success} onClose={() => setSuccess('')} />}

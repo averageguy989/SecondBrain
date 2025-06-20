@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = 'http://localhost:3000/api/auth';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api/auth';
 
 // Create axios instance with credentials
 const api = axios.create({
@@ -9,22 +9,22 @@ const api = axios.create({
 });
 
 export const signup = async (name: string, email: string, password: string): Promise<any> => {
-    const response = await api.post('/signup', { name, email, password });
+    const response = await api.post('/auth/signup', { name, email, password });
     return response.data;
 };
 
 export const signin = async (email: string, password: string): Promise<any> => {
-    const response = await api.post('/signin', { email, password });
+    const response = await api.post('/auth/signin', { email, password });
     return response.data;
 };
 
 export const signout = async (): Promise<any> => {
-    const response = await api.post('/signout');
+    const response = await api.post('/auth/signout');
     return response.data;
 };
 
 export const refreshAccessToken = async (): Promise<any> => {
-    const response = await api.post('/refresh');
+    const response = await api.post('/auth/refresh');
     return response.data;
 };
 

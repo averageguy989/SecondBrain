@@ -96,12 +96,6 @@ export const MyContent = () => {
                     <p className="empty-state-message">
                         Start building your second brain by creating your first piece of content.
                     </p>
-                    <button className="create-content-button" onClick={handleCreateContent}>
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                        Create Content
-                    </button>
                 </div>
             ) : (
                 <div className="content-grid">
